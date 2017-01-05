@@ -1,0 +1,6 @@
+{
+  "name": "step-02",
+  "dependencies": {
+    "polymer": "Polymer/polymer#2.0-preview"
+  }
+}
