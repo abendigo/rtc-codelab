@@ -1,0 +1,113 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<link rel="import" href="bower_components/rtc-web-components/rtc-signaling-channel-mixin.html">
+<script src="/socket.io/socket.io.js"></script>
+
+<dom-module id='socketio-signaling-channel'>
+    <script>
+        class SocketIOSignalingChannel extends RtcSignalingChannelMixin(Polymer.Element) {
+            static get is() {
+                return 'socketio-signaling-channel';
+            }
+
+            static get config() {
+              return {
+                properties: {
+                  isChannelReady: {
+                    type: Boolean,
+                    notify: true,
+                    observer: '_readyChanged'
+                  }
+                }
+              }
+            }
+
+            _readyChanged(newValue, oldValue) {
+              console.log('=======================================', newValue)
+            }
+
+            connectedCallback() {
+              var isInitiator;
+              var isChannelReady;
+
+              var room = 'foo';
+
+              this.socket = io.connect();
+              if (room !== '') {
+                this.socket.emit('create or join', room);
+                console.log('Attempted to create or  join room', room);
+              }
+
+              this.socket.on('created', function(room) {
+                console.log('Created room ' + room);
+                isInitiator = true;
+              });
+
+              this.socket.on('full', function(room) {
+                console.log('Room ' + room + ' is full');
+              });
+
+              this.socket.on('join', (room) => {
+                console.log('Another peer made a request to join room ' + room, this);
+                console.log('This peer is the initiator of room ' + room + '!');
+                this.isChannelReady = true;
+              });
+
+              this.socket.on('joined', (room) => {
+                console.log('joined: ' + room);
+                this.isChannelReady = true;
+              });
+
+              this.socket.on('log', function(array) {
+                console.log.apply(console, array);
+              });
+
+              // This client receives a message
+              this.socket.on('message', (message) => {
+                console.log('Client received message:', message);
+                // this.users[header.to].peer.onSignal(data);
+
+                if (message === 'got user media') {
+                  maybeStart();
+                } else if (message === 'bye' && isStarted) {
+                  handleRemoteHangup();
+                } else {
+                  this.peer.onSignal(message);
+                }
+                // } else if (message.type === 'offer') {
+                //   if (!isInitiator && !isStarted) {
+                //     maybeStart();
+                //   }
+                //   pc.setRemoteDescription(new RTCSessionDescription(message));
+                //   doAnswer();
+                // } else if (message.type === 'answer' && isStarted) {
+                //   pc.setRemoteDescription(new RTCSessionDescription(message));
+                // } else if (message.type === 'candidate' && isStarted) {
+                //   var candidate = new RTCIceCandidate({
+                //     sdpMLineIndex: message.label,
+                //     candidate: message.candidate
+                //   });
+                //   pc.addIceCandidate(candidate);
+                // } else if (message === 'bye' && isStarted) {
+                //   handleRemoteHangup();
+                // }
+              });
+              this.instance = this;
+
+              super.connectedCallback();
+            }
+
+            connect(name, peer) {
+              console.log('connect', name, peer)
+              this.peer = peer;
+            }
+
+            send(header, data) {
+              console.log('send', header, data)
+              this.socket.emit('message', data);
+            }
+        }
+
+        customElements.define(SocketIOSignalingChannel.is, SocketIOSignalingChannel);
+    </script>
+</dom-module>

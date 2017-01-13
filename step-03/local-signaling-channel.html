@@ -1,0 +1,23 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<link rel="import" href="bower_components/rtc-web-components/rtc-signaling-channel-mixin.html">
+
+<dom-module id='local-signaling-channel'>
+    <script>
+        class LocalSignalingChannel extends RtcSignalingChannelMixin(Polymer.Element) {
+            static get is() {
+                return 'local-signaling-channel';
+            }
+
+            connect(name, peer) {
+                this.set(`users.${name}`, {name: name, peer: peer});
+            }
+
+            send(header, data) {
+                this.users[header.to].peer.onSignal(data);
+            }
+        }
+
+        customElements.define(LocalSignalingChannel.is, LocalSignalingChannel);
+    </script>
+</dom-module>

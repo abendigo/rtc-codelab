@@ -1,0 +1,83 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<link rel="import" href="bower_components/rtc-web-components/rtc-media-stream.html">
+<link rel="import" href="bower_components/rtc-web-components/rtc-peer-connection.html">
+
+<link rel="import" href="socketio-signaling-channel.html">
+
+<dom-module id="step-05-receive-app">
+  <template>
+    <style>
+      :host {
+        font-family: sans-serif;
+      }
+
+      video {
+        max-width: 100%;
+        width: 320px;
+      }
+    </style>
+
+    <socketio-signaling-channel instance={{_signalingChannel}} is-channel-ready={{_isChannelReady}}></socketio-signaling-channel>
+
+    <h2>BEFORE</h2>
+    <dom-if if="[[_isChannelReady]]" restamp>
+      <template>
+        <h2>INSIDE</h2>
+        <rtc-peer-connection iam="receive" peer="send" signaling=[[_signalingChannel]]>
+          <rtc-media-stream out={{_remoteStream}}></rtc-media-stream>
+        </rtc-peer-connection>
+      </template>
+    </dom-if>
+
+    <h1>Realtime communication with WebRTC</h1>
+
+    <div id="videos">
+      <!-- <video id="localVideo"  src-object=[[_localStream]] autoplay muted></video> -->
+      <!-- <video id="localVideo"  src$="[[_createObjectURL(_localStream)]]" autoplay muted></video> -->
+      <video id="remoteVideo" src-object=[[_remoteStream]] autoplay></video>
+    </div>
+  </template>
+
+  <script>
+    class Step05ReceiveApp extends Polymer.Element {
+      static get is() {
+        return 'step-05-receive-app';
+      }
+
+      // static get config() {
+      //   return {
+      //     observers: [
+      //       '_maybeStart(peer, _localStream)'
+      //     ]
+      //   };
+      // }
+
+      connectedCallback() {
+        super.connectedCallback();
+
+        // navigator.mediaDevices.getUserMedia({
+        //     audio: false,
+        //     video: true
+        // }).then(stream => {
+        //   this._localStream = stream;
+        //   // this._signalingChannel.send(undefined, 'got user media');
+        // }).catch(function(e) {
+        //     alert('getUserMedia() error: ' + e.name);
+        // });
+      }
+
+      // _maybeStart(peer, _localStream) {
+      //   console.log('_maybeStart', peer, _localStream);
+      //   // _signalingChannel.send(undefined, 'got user media');
+      // }
+
+      // _createObjectURL(stream) {
+      //   console.log('_createObjectURL', stream);
+      //   return window.URL.createObjectURL(stream);
+      // }
+    }
+
+    customElements.define(Step05ReceiveApp.is, Step05ReceiveApp);
+  </script>
+</dom-module>
