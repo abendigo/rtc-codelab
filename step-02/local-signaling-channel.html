@@ -6,16 +6,32 @@
     <script>
         class LocalSignalingChannel extends RtcSignalingChannelMixin(Polymer.Element) {
             static get is() {
+                console.log('LocalSignalingChannel.is')
                 return 'local-signaling-channel';
             }
 
             connect(name, peer) {
+                this.trace(`LocalSignalingChannel.connect(${name}, ${peer})`)
                 this.set(`users.${name}`, {name: name, peer: peer});
             }
 
             send(header, data) {
+                this.trace(`LocalSignalingChannel.send(${header}, ${data})`)
                 this.users[header.to].peer.onSignal(data);
             }
+
+            trace(text) {
+              if (text[text.length - 1] === '\n') {
+                text = text.substring(0, text.length - 1);
+              }
+              if (window.performance) {
+                var now = (window.performance.now() / 1000).toFixed(3);
+                console.log(now + ': ' + text);
+              } else {
+                console.log(text);
+              }
+            }
+
         }
 
         customElements.define(LocalSignalingChannel.is, LocalSignalingChannel);

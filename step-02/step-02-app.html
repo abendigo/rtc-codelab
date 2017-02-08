@@ -18,15 +18,15 @@
       }
     </style>
 
-    <local-signaling-channel instance={{_signalingChannel}}></local-signaling-channel>
+    <local-signaling-channel id="signaling"></local-signaling-channel>
 
     <dom-if if="[[_checkState(state, 'CALL')]]" restamp>
       <template>
-        <rtc-peer-connection iam="one" peer="two" signaling=[[_signalingChannel]]>
+        <rtc-peer-connection iam="one" peer="two" signaling=[[_getSignalingChannel()]]>
           <rtc-media-stream in=[[_localStream]]></rtc-media-stream>
         </rtc-peer-connection>
 
-        <rtc-peer-connection iam="two" peer="one" signaling=[[_signalingChannel]]>
+        <rtc-peer-connection iam="two" peer="one" signaling=[[_getSignalingChannel()]]>
           <rtc-media-stream out={{_remoteStream}}></rtc-media-stream>
         </rtc-peer-connection>
       </template>
@@ -48,6 +48,10 @@
     class Step02App extends Polymer.Element {
       static get is() {
         return 'step-02-app';
+      }
+
+      _getSignalingChannel() {
+        return this.$.signaling;
       }
 
       _checkState(current, desired) {

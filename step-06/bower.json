@@ -1,6 +1,7 @@
 {
   "name": "step-06",
   "dependencies": {
-    "polymer": "Polymer/polymer#2.0-preview"
+    "polymer": "Polymer/polymer#2.0-preview",
+    "rtc-web-components": "^0.0.1"
   }
 }
